@@ -1,0 +1,98 @@
+[
+  {
+    "id": "p001",
+    "name": "LeanBurn Pro",
+    "category": "weight_management",
+    "price": 49.99,
+    "description": "A busy professional looking to lose weight with metabolism-boosting green tea and CLA. Supports fat burning during low-activity periods.",
+    "key_ingredient": "Green Tea Extract + CLA",
+    "benefit_headline": "Burns fat even on your busiest days",
+    "certifications": ["GMP Certified", "Non-GMO", "Third-party tested"],
+    "goals": ["weight_loss", "more_energy"],
+    "personas": ["busy_professional", "weight_loss_seeker"]
+  },
+  {
+    "id": "p002",
+    "name": "DeepSleep Formula",
+    "category": "sleep_recovery",
+    "price": 39.99,
+    "description": "Natural sleep support with magnesium glycinate and ashwagandha for stress relief and deep restorative sleep cycles.",
+    "key_ingredient": "Magnesium Glycinate + Ashwagandha",
+    "benefit_headline": "Fall asleep faster, wake up restored",
+    "certifications": ["GMP Certified", "Vegan", "Clinically studied ingredients"],
+    "goals": ["better_sleep", "stress_relief"],
+    "personas": ["busy_professional", "chronic_condition"]
+  },
+  {
+    "id": "p003",
+    "name": "PerformanceStack",
+    "category": "sports_nutrition",
+    "price": 64.99,
+    "description": "Pre and post workout formula for athletes. Creatine monohydrate, beta-alanine, and BCAAs for peak performance and muscle recovery.",
+    "key_ingredient": "Creatine + BCAAs + Beta-Alanine",
+    "benefit_headline": "Train harder, recover faster",
+    "certifications": ["NSF Certified for Sport", "GMP Certified", "Informed Sport"],
+    "goals": ["muscle_gain", "more_energy"],
+    "personas": ["performance_athlete"]
+  },
+  {
+    "id": "p004",
+    "name": "GutShield Daily",
+    "category": "digestive_health",
+    "price": 44.99,
+    "description": "50 billion CFU probiotic blend with prebiotic fiber for gut microbiome balance, bloating relief, and immune support.",
+    "key_ingredient": "50B CFU Probiotics + Prebiotic Fiber",
+    "benefit_headline": "A healthier gut, a healthier you",
+    "certifications": ["GMP Certified", "Vegan", "Gluten-free"],
+    "goals": ["gut_health", "immunity"],
+    "personas": ["chronic_condition", "wellness_explorer"]
+  },
+  {
+    "id": "p005",
+    "name": "ImmunityShield",
+    "category": "immune_support",
+    "price": 34.99,
+    "description": "Daily immune defense with Vitamin C, Zinc, Elderberry, and Vitamin D3. Supports immune resilience year-round.",
+    "key_ingredient": "Vitamin C + Zinc + Elderberry",
+    "benefit_headline": "Stay well, stay strong",
+    "certifications": ["GMP Certified", "Non-GMO", "Vegan"],
+    "goals": ["immunity", "more_energy"],
+    "personas": ["wellness_explorer", "busy_professional"]
+  },
+  {
+    "id": "p006",
+    "name": "CalmMind Adapt",
+    "category": "stress_mood",
+    "price": 42.99,
+    "description": "Adaptogen blend with Rhodiola, L-theanine, and Holy Basil to reduce cortisol, sharpen focus, and manage daily stress.",
+    "key_ingredient": "Rhodiola + L-Theanine + Holy Basil",
+    "benefit_headline": "Calm focus without the crash",
+    "certifications": ["GMP Certified", "Vegan", "Non-GMO"],
+    "goals": ["stress_relief", "more_energy"],
+    "personas": ["busy_professional", "chronic_condition"]
+  },
+  {
+    "id": "p007",
+    "name": "WheyMax Ultra",
+    "category": "protein",
+    "price": 59.99,
+    "description": "25g whey protein isolate per serving. Designed for athletes who want lean muscle gain with minimal fat and sugar.",
+    "key_ingredient": "Whey Protein Isolate",
+    "benefit_headline": "Build lean muscle, not bulk",
+    "certifications": ["NSF Certified for Sport", "GMP Certified"],
+    "goals": ["muscle_gain", "weight_loss"],
+    "personas": ["performance_athlete", "weight_loss_seeker"]
+  },
+  {
+    "id": "p008",
+    "name": "EnergyFlow B-Complex",
+    "category": "vitamins",
+    "price": 28.99,
+    "description": "Complete B-vitamin complex with B12, B6, folate, and biotin for sustained natural energy, mental clarity, and metabolism support.",
+    "key_ingredient": "B12 + B6 + Folate + Biotin",
+    "benefit_headline": "Natural energy, all day long",
+    "certifications": ["GMP Certified", "Vegan", "Gluten-free"],
+    "goals": ["more_energy", "weight_loss"],
+    "personas": ["busy_professional", "wellness_explorer"]
+  }
+]

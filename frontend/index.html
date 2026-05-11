@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthFirst — Personalized Wellness</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:      #16a96b;
+      --green-dark: #0e7a4e;
+      --green-bg:   #f0faf5;
+      --green-light:#e1f5ec;
+      --text:       #111827;
+      --muted:      #6b7280;
+      --border:     #e5e7eb;
+      --white:      #ffffff;
+      --radius:     16px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--white);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo { font-size: 20px; font-weight: 800; color: var(--green); }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-step-label { font-size: 13px; color: var(--muted); }
+    .nav-step-count { font-size: 13px; font-weight: 600; color: var(--text); }
+
+    /* ── PROGRESS ── */
+    .progress-track {
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      height: 4px;
+      background: var(--green-light);
+      z-index: 99;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), #34d399);
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .page {
+      min-height: 100vh;
+      padding-top: 68px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Left panel — content */
+    .left-panel {
+      padding: 60px 64px 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 640px;
+    }
+
+    /* Right panel — visual */
+    .right-panel {
+      background: linear-gradient(160deg, var(--green-bg) 0%, #d1fae5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: sticky;
+      top: 68px;
+      height: calc(100vh - 68px);
+    }
+
+    .right-illustration {
+      text-align: center;
+      padding: 40px;
+    }
+    .right-illustration .big-emoji { font-size: 120px; display: block; margin-bottom: 24px; }
+    .right-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 24px 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      text-align: left;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .right-card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+    .right-card-stat {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .right-card-stat:last-child { border-bottom: none; }
+    .stat-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    /* ── STEP TAG ── */
+    .step-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--green-light);
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 30px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    h1 {
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .subheadline {
+      font-size: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .body-text {
+      font-size: 15px;
+      color: #374151;
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+
+    /* ── TRUST BADGE ── */
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 16px;
+      border-radius: 10px;
+      margin-bottom: 28px;
+    }
+
+    /* ── AGENT INSIGHT ── */
+    .agent-insight {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #1e40af;
+      margin-bottom: 24px;
+    }
+
+    /* ── PRODUCT CARDS ── */
+    .product-cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+    .product-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .product-card:hover { border-color: var(--green); background: var(--green-bg); }
+    .product-card.selected { border-color: var(--green); background: var(--green-bg); }
+    .product-icon {
+      width: 52px; height: 52px;
+      background: var(--green-light);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; flex-shrink: 0;
+    }
+    .product-info { flex: 1; }
+    .product-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .product-benefit { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+    .product-price { font-size: 15px; font-weight: 700; color: var(--green); }
+    .product-check {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .product-card.selected .product-check {
+      background: var(--green); border-color: var(--green); color: white;
+    }
+
+    /* ── REVIEWS ── */
+    .reviews { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+    .review-card {
+      background: #fafafa;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      border-left: 4px solid var(--green);
+    }
+    .review-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .review-author { font-size: 14px; font-weight: 700; }
+    .review-goal {
+      font-size: 11px; font-weight: 600;
+      background: var(--green-light); color: var(--green-dark);
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .stars { color: #f59e0b; font-size: 14px; margin-bottom: 6px; }
+    .review-text { font-size: 14px; color: #4b5563; line-height: 1.6; font-style: italic; }
+
+    /* ── CTA BUTTONS ── */
+    .cta-group { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, var(--green), #34d399);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      width: 100%;
+    }
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 14px 32px;
+      background: transparent;
+      color: var(--muted);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .btn-secondary:hover { border-color: #9ca3af; color: var(--text); }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(6px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .loading-overlay.active { display: flex; }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid var(--green-light);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    .loading-label { font-size: 15px; font-weight: 600; color: var(--text); }
+    .loading-sub { font-size: 13px; color: var(--muted); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── COMPLETION ── */
+    .completion-wrap { text-align: center; padding: 20px 0 40px; }
+    .completion-wrap .big-check {
+      width: 80px; height: 80px;
+      background: var(--green-light);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 28px;
+    }
+    .completion-wrap h1 { font-size: 36px; margin-bottom: 14px; }
+    .completion-wrap p { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 28px; }
+    .completion-list {
+      background: var(--green-bg);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      text-align: left;
+      margin-bottom: 32px;
+    }
+    .completion-list-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; color: #374151; padding: 6px 0;
+    }
+    .completion-list-item::before { content: '✓'; color: var(--green); font-weight: 700; }
+
+    /* ── ERROR ── */
+    .error-toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;
+      padding: 12px 20px; border-radius: 10px; font-size: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      z-index: 300; display: none;
+    }
+    .error-toast.show { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .right-panel { display: none; }
+      .left-panel { padding: 40px 28px 120px; max-width: 100%; }
+      h1 { font-size: 32px; }
+      nav { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-logo">HealthFirst</div>
+    <div class="nav-right">
+      <span class="nav-step-label" id="stepLabel">Welcome</span>
+      <span class="nav-step-count" id="stepCount">1 / 9</span>
+    </div>
+  </nav>
+
+  <!-- Progress bar -->
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width: 11%"></div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-label">Agents are thinking</div>
+    <div class="loading-sub" id="loadingSub">Personalising your experience...</div>
+  </div>
+
+  <!-- Error toast -->
+  <div class="error-toast" id="errorToast"></div>
+
+  <!-- Main page -->
+  <div class="page">
+    <!-- Left: dynamic content -->
+    <div class="left-panel" id="leftPanel">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Right: illustration panel -->
+    <div class="right-panel" id="rightPanel">
+      <div class="right-illustration">
+        <span class="big-emoji" id="rightEmoji">🌿</span>
+        <div class="right-card" id="rightCard">
+          <div class="right-card-title">Why HealthFirst?</div>
+          <div class="right-card-stat"><span class="stat-dot"></span>50,000+ customers</div>
+          <div class="right-card-stat"><span class="stat-dot"></span>Doctor formulated</div>
+          <div class="right-card-stat"><span class="stat-dot"></span>Third-party tested</div>
+          <div class="right-card-stat"><span class="stat-dot"></span>30-day money back</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ─── Config ───────────────────────────────────────────────────────────────
+  const API     = 'http://localhost:8000';
+  const USER_ID = 'user_' + Math.random().toString(36).slice(2, 8);
+
+  const STEPS = [
+    'welcome','health_goals','health_profile','persona_reveal',
+    'trust_signals','product_match','social_proof','purchase_cta','commitment'
+  ];
+
+  const STEP_LABELS = {
+    welcome:'Welcome', health_goals:'Your Goals', health_profile:'Your Profile',
+    persona_reveal:'Your Persona', trust_signals:'Why Trust Us',
+    product_match:'Recommended Products', social_proof:'Success Stories',
+    purchase_cta:'Get Started', commitment:'Stay on Track'
+  };
+
+  const STEP_EMOJIS = {
+    welcome:'🌿', health_goals:'🎯', health_profile:'📋',
+    persona_reveal:'✨', trust_signals:'🔐', product_match:'🧬',
+    social_proof:'💬', purchase_cta:'🛒', commitment:'🔔'
+  };
+
+  const RIGHT_CARDS = {
+    welcome: { emoji:'🌿', title:'Why HealthFirst?', stats:['50,000+ customers','Doctor formulated','Third-party tested','30-day money back'] },
+    health_goals: { emoji:'🎯', title:'Common goals we help with', stats:['Weight loss & management','Better sleep quality','More daily energy','Stronger immunity'] },
+    health_profile: { emoji:'📋', title:'We personalise for', stats:['Your age & activity level','Diet preferences','Health conditions','Budget range'] },
+    persona_reveal: { emoji:'✨', title:'Our AI analyses', stats:['Behavioral signals','Goal patterns','Similar user journeys','Conversion data'] },
+    trust_signals: { emoji:'🔐', title:'Our standards', stats:['GMP certified facilities','NSF certified products','Clinical-grade ingredients','ISO 9001 quality'] },
+    product_match: { emoji:'🧬', title:'How we match products', stats:['AI semantic matching','Goal alignment score','Persona fit analysis','Budget compatibility'] },
+    social_proof: { emoji:'💬', title:'Community results', stats:['4.8/5 average rating','15,000+ reviews','92% reorder rate','60-day avg results'] },
+    purchase_cta: { emoji:'🛒', title:'Your order includes', stats:['Free shipping over ₹999','30-day return policy','Loyalty reward points','Personalised follow-up'] },
+    commitment: { emoji:'🔔', title:'Your journey continues', stats:['Weekly progress check-ins','AI adapts to your results','New recommendations monthly','Expert community access'] },
+  };
+
+  // ─── State ────────────────────────────────────────────────────────────────
+  let stepIndex    = 0;
+  let stepStart    = Date.now();
+  let maxScroll    = 0;
+  let selectedProd = null;
+
+  document.getElementById('leftPanel').addEventListener('scroll', e => {
+    const el = e.target;
+    maxScroll = Math.max(maxScroll, (el.scrollTop + el.clientHeight) / el.scrollHeight);
+  });
+  window.addEventListener('scroll', () => {
+    maxScroll = Math.max(maxScroll, (window.scrollY + window.innerHeight) / document.body.scrollHeight);
+  });
+
+  // ─── Boot ─────────────────────────────────────────────────────────────────
+  async function init() {
+    showLoading('Starting your journey...');
+    try {
+      await fetch(`${API}/onboarding/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: USER_ID, email: 'user@healthfirst.com' })
+      });
+    } catch(e) { showError('Cannot connect to server. Make sure the backend is running.'); }
+    hideLoading();
+    renderWelcome();
+  }
+
+  // ─── API call ─────────────────────────────────────────────────────────────
+  async function sendEvent(eventType, step) {
+    const dwell = (Date.now() - stepStart) / 1000;
+    const res = await fetch(`${API}/onboarding/event`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id:            USER_ID,
+        event_type:         eventType,
+        step:               step,
+        dwell_time_seconds: Math.round(dwell),
+        scroll_depth:       Math.round(maxScroll * 100) / 100,
+        scroll_velocity:    maxScroll > 0.7 ? 80 : maxScroll > 0.4 ? 220 : 420,
+        reread_count:       0,
+        session_gap_days:   0
+      })
+    });
+    if (!res.ok) throw new Error('API ' + res.status);
+    return res.json();
+  }
+
+  // ─── CTA handlers ────────────────────────────────────────────────────────
+  async function handlePrimary() {
+    const step = STEPS[stepIndex];
+    showLoading(loadingMsg());
+    try {
+      const data = await sendEvent('step_completed', step);
+      stepIndex++; stepStart = Date.now(); maxScroll = 0; selectedProd = null;
+      updateNav(); renderStep(data);
+    } catch(e) { showError('Something went wrong. Please try again.'); console.error(e); }
+    hideLoading();
+  }
+
+  async function handleSkip() {
+    const step = STEPS[stepIndex];
+    showLoading('Adapting your journey...');
+    try {
+      const data = await sendEvent('step_skipped', step);
+      stepIndex++; stepStart = Date.now(); maxScroll = 0;
+      updateNav(); renderStep(data);
+    } catch(e) { showError('Something went wrong.'); }
+    hideLoading();
+  }
+
+  // ─── Nav + progress ───────────────────────────────────────────────────────
+  function updateNav() {
+    const step = STEPS[Math.min(stepIndex, STEPS.length - 1)];
+    const pct  = Math.round((stepIndex / STEPS.length) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('stepLabel').textContent = STEP_LABELS[step] || '';
+    document.getElementById('stepCount').textContent  = `${Math.min(stepIndex + 1, STEPS.length)} / ${STEPS.length}`;
+    updateRightPanel(step);
+  }
+
+  function updateRightPanel(step) {
+    const card = RIGHT_CARDS[step] || RIGHT_CARDS.welcome;
+    document.getElementById('rightEmoji').textContent = card.emoji;
+    document.getElementById('rightCard').innerHTML =
+      `<div class="right-card-title">${card.title}</div>` +
+      card.stats.map(s => `<div class="right-card-stat"><span class="stat-dot"></span>${s}</div>`).join('');
+  }
+
+  // ─── Welcome screen ───────────────────────────────────────────────────────
+  function renderWelcome() {
+    const lp = document.getElementById('leftPanel');
+    lp.innerHTML = `
+      <div class="step-tag">🌿 Welcome</div>
+      <h1>Your personalized health plan starts here</h1>
+      <p class="subheadline">Answer a few questions and our AI agents will build a wellness experience tailored specifically to you — and keep improving it over time.</p>
+      <p class="body-text">Join 50,000+ people who've transformed their health with science-backed supplements matched to their unique goals, lifestyle, and budget.</p>
+      <div class="trust-badge">🔒 Doctor formulated · Third-party tested · 30-day money back guarantee</div>
+      <div class="cta-group">
+        <button class="btn-primary" id="btnPrimary" onclick="handlePrimary()">Let's Begin →</button>
+      </div>
+    `;
+    updateNav();
+    hideLoading();
+  }
+
+  // ─── Agent-driven step render ─────────────────────────────────────────────
+  function renderStep(data) {
+    if (stepIndex >= STEPS.length) { renderCompletion(); return; }
+
+    const r    = data.rendered_step || {};
+    const step = STEPS[stepIndex - 1];
+    const lp   = document.getElementById('leftPanel');
+    lp.scrollTop = 0;
+
+    let html = `<div class="step-tag">${STEP_EMOJIS[step] || '✨'} ${STEP_LABELS[step] || step}</div>`;
+
+    // Agent insight pill
+    if (data.empathy_state && data.empathy_state !== 'neutral') {
+      html += `<div class="agent-insight">🤖 Agent detected <strong>${data.empathy_state}</strong> state — flow adapted for you</div>`;
+    }
+
+    html += `<h1>${r.headline || 'Next Step'}</h1>`;
+    if (r.subheadline) html += `<p class="subheadline">${r.subheadline}</p>`;
+    if (r.body)        html += `<p class="body-text">${r.body}</p>`;
+    if (r.trust_badge) html += `<div class="trust-badge">🔒 ${r.trust_badge}</div>`;
+
+    // Product cards
+    if (r.product_cards && r.product_cards.length) {
+      const icons = ['🧬','💊','⚡','🌿','🛡️','🔥'];
+      html += `<div class="product-cards">` +
+        r.product_cards.map((p, i) => `
+          <div class="product-card" id="pc${i}" onclick="selectProduct(${i}, '${p.name}')">
+            <div class="product-icon">${icons[i % icons.length]}</div>
+            <div class="product-info">
+              <div class="product-name">${p.name}</div>
+              <div class="product-benefit">${p.benefit || ''}</div>
+              <div class="product-price">${p.price || ''}</div>
+            </div>
+            <div class="product-check" id="check${i}"></div>
+          </div>`
+        ).join('') + `</div>`;
+    }
+
+    // Reviews
+    if (r.reviews && r.reviews.length) {
+      html += `<div class="reviews">` +
+        r.reviews.map(rv => `
+          <div class="review-card">
+            <div class="stars">★★★★★</div>
+            <div class="review-top">
+              <div class="review-author">${rv.author || 'Verified User'}</div>
+              <div class="review-goal">${(rv.goal || '').replace(/_/g,' ')}</div>
+            </div>
+            <div class="review-text">"${rv.text}"</div>
+          </div>`
+        ).join('') + `</div>`;
+    }
+
+    // CTAs
+    const isLast  = stepIndex >= STEPS.length;
+    const primTxt = isLast ? '🎉 Complete Setup' : (r.cta_primary || 'Continue →');
+    const secTxt  = r.cta_secondary;
+
+    html += `<div class="cta-group">
+      <button class="btn-primary" id="btnPrimary" onclick="${isLast ? 'renderCompletion()' : 'handlePrimary()'}">
+        ${primTxt}
+      </button>
+      ${secTxt ? `<button class="btn-secondary" onclick="handleSkip()">${secTxt}</button>` : ''}
+    </div>`;
+
+    // Planner reasoning (subtle, for transparency)
+    if (data.planner_reasoning) {
+      html += `<p style="font-size:11px;color:#9ca3af;margin-top:16px;line-height:1.5;">
+        🔍 Agent reasoning: ${data.planner_reasoning.substring(0, 120)}...</p>`;
+    }
+
+    lp.innerHTML = html;
+  }
+
+  // ─── Completion ───────────────────────────────────────────────────────────
+  function renderCompletion() {
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('stepLabel').textContent    = 'Complete';
+    document.getElementById('stepCount').textContent    = '✓ Done';
+    document.getElementById('rightEmoji').textContent   = '🎉';
+
+    document.getElementById('leftPanel').innerHTML = `
+      <div class="completion-wrap">
+        <div class="big-check">🎉</div>
+        <h1>You're all set!</h1>
+        <p>Your personalized health plan is ready. Our AI agents have learned your preferences and will keep improving your experience with every interaction.</p>
+        <div class="completion-list">
+          <div class="completion-list-item">Personalised product shelf ready</div>
+          <div class="completion-list-item">AI adapts with every interaction</div>
+          <div class="completion-list-item">Weekly health insights enabled</div>
+          <div class="completion-list-item">Expert community access unlocked</div>
+        </div>
+        <div class="cta-group">
+          <button class="btn-primary" onclick="alert('Dashboard coming soon!')">Go to My Dashboard →</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ─── Product selection ────────────────────────────────────────────────────
+  function selectProduct(i, name) {
+    document.querySelectorAll('.product-card').forEach((el, j) => {
+      el.classList.toggle('selected', j === i);
+      document.getElementById('check' + j).textContent = j === i ? '✓' : '';
+    });
+    selectedProd = name;
+    sendEvent('product_tapped', STEPS[stepIndex - 1]).catch(() => {});
+  }
+
+  // ─── Loading helpers ──────────────────────────────────────────────────────
+  function showLoading(sub) {
+    document.getElementById('loadingSub').textContent = sub;
+    document.getElementById('loadingOverlay').classList.add('active');
+    const btn = document.getElementById('btnPrimary');
+    if (btn) btn.disabled = true;
+  }
+
+  function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('active');
+    const btn = document.getElementById('btnPrimary');
+    if (btn) btn.disabled = false;
+  }
+
+  function showError(msg) {
+    const t = document.getElementById('errorToast');
+    t.textContent = '⚠️ ' + msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 5000);
+  }
+
+  const LOADING_MSGS = [
+    'Empathy agent reading your signals...',
+    'Risk agent checking your journey...',
+    'Planner agent choosing next step...',
+    'Personalising your experience...',
+    'Matching products to your goals...',
+  ];
+  function loadingMsg() { return LOADING_MSGS[Math.floor(Math.random() * LOADING_MSGS.length)]; }
+
+  // ─── Start ────────────────────────────────────────────────────────────────
+  init();
+</script>
+</body>
+</html>
