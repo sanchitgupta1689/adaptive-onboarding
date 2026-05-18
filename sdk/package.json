@@ -1,0 +1,24 @@
+{
+  "name": "@healthfirst/embed-sdk",
+  "version": "1.0.0",
+  "description": "Official SDK for embedding third-party apps inside the HealthFirst platform",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build":   "tsc --project tsconfig.json",
+    "dev":     "tsc --watch",
+    "test":    "jest",
+    "lint":    "eslint src/**/*.ts"
+  },
+  "keywords": ["healthfirst", "embed", "sdk", "health", "platform"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  }
+}
