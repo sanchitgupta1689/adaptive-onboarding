@@ -94,11 +94,60 @@ export interface UserContext {
 
 // ─── Platform Context ─────────────────────────────────────────────────────────
 
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+
+/**
+ * Platform design tokens injected by HealthFirst on INIT and updated on THEME_CHANGE.
+ * The SDK writes these as CSS custom properties on :root automatically.
+ *
+ * Use in your CSS:
+ *   background: var(--hf-color-surface);
+ *   border-radius: var(--hf-radius-md);
+ *   font-family: var(--hf-font-family);
+ */
+export interface DesignTokens {
+  color: {
+    /** Brand primary — use for CTAs, links, active states */
+    primary:    string;
+    /** Card / elevated surface background */
+    surface:    string;
+    /** Page / container background */
+    background: string;
+    /** Body text */
+    text:       string;
+    /** Secondary / placeholder text */
+    muted:      string;
+    /** Destructive actions, error states */
+    error:      string;
+    /** Positive confirmation, success states */
+    success:    string;
+  };
+  typography: {
+    /** Full font-family stack, e.g. "Inter, sans-serif" */
+    fontFamily: string;
+    /** Base font size in px — all rem values scale from this */
+    scaleBase:  number;
+  };
+  radius: {
+    sm: string;   // e.g. "6px"  — inputs, chips
+    md: string;   // e.g. "12px" — cards
+    lg: string;   // e.g. "20px" — sheets, modals
+  };
+  spacing: {
+    /** Base spacing unit in px. All spacing = multiples of this. */
+    unit: number;  // e.g. 4
+  };
+}
+
+// ─── Platform Context ─────────────────────────────────────────────────────────
+
 export interface PlatformContext {
   env:      Environment;
   locale:   string;
   currency: string;
   theme:    Theme;
+  /** Design tokens — present when platform supports token injection (v1.1+) */
+  tokens?:  DesignTokens;
 }
 
 // ─── App Info ─────────────────────────────────────────────────────────────────
@@ -184,7 +233,9 @@ export interface CloseRequestPayload {
 }
 
 export interface ThemeChangePayload {
-  theme: Theme;
+  theme:    Theme;
+  /** Updated design tokens for the new theme — apply with sdk.applyTokens() */
+  tokens?: DesignTokens;
 }
 
 // ─── Guest → Host Payloads ────────────────────────────────────────────────────

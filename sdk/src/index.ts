@@ -37,6 +37,7 @@ export type {
   UserContext,
   PlatformContext,
   AppInfo,
+  DesignTokens,
 
   // Message envelope + types
   MessageType,

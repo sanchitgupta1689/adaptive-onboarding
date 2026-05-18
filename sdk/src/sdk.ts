@@ -17,6 +17,7 @@ import {
   NavigationDestination,
   Theme,
   HealthGraphResponse,
+  DesignTokens,
 } from "./types";
 
 import {
@@ -68,14 +69,15 @@ export class HealthFirstSDK {
   private readonly debug:       boolean;
 
   // Session state — populated after INIT is received
-  private sessionId?:   string;
-  private authToken?:   string;
-  private tokenExpiry?: number;
-  private userContext?: UserContext;
-  private platform?:    PlatformContext;
-  private appInfo?:     AppInfo;
-  private isReady       = false;
-  private paymentInFlight = false;
+  private sessionId?:      string;
+  private authToken?:      string;
+  private tokenExpiry?:    number;
+  private userContext?:    UserContext;
+  private platform?:       PlatformContext;
+  private appInfo?:        AppInfo;
+  private currentTokens?:  DesignTokens;
+  private isReady          = false;
+  private paymentInFlight  = false;
 
   // Pending payment promise resolver — resolved when PAYMENT_RESULT arrives
   private pendingPaymentResolve?: (result: PaymentResultPayload) => void;
@@ -334,6 +336,16 @@ export class HealthFirstSDK {
     return this.platform;
   }
 
+  /**
+   * Returns the current design tokens injected by the platform.
+   * Useful for imperative rendering contexts (canvas, chart libraries, inline styles)
+   * where CSS custom properties can't be used directly.
+   * Returns undefined if the platform hasn't sent tokens yet.
+   */
+  getDesignTokens(): DesignTokens | undefined {
+    return this.currentTokens;
+  }
+
   // ─── Internal: message handling ───────────────────────────────────────────
 
   private async handleMessage(event: MessageEvent): Promise<void> {
@@ -378,6 +390,11 @@ export class HealthFirstSDK {
     this.userContext = payload.user_context;
     this.platform    = payload.platform;
     this.appInfo     = payload.app;
+
+    // Apply design tokens from platform if provided
+    if (payload.platform.tokens) {
+      this.applyTokens(payload.platform.tokens, payload.platform.theme);
+    }
 
     // Calculate token expiry from JWT exp claim
     this.tokenExpiry = parseTokenExpiry(payload.auth_token);
@@ -444,9 +461,56 @@ export class HealthFirstSDK {
 
   private handleThemeChange(payload: ThemeChangePayload): void {
     this.log(`THEME_CHANGE received (theme: ${payload.theme})`);
+    if (payload.tokens) {
+      this.applyTokens(payload.tokens, payload.theme);
+    } else {
+      // No token bundle — at minimum flip the data attribute so CSS selectors work
+      document.documentElement.setAttribute("data-hf-theme", payload.theme);
+    }
     if (this.themeChangeCallback) {
       this.themeChangeCallback(payload);
     }
+  }
+
+  // ─── Internal: design tokens ──────────────────────────────────────────────
+
+  /**
+   * Writes DesignTokens as CSS custom properties on :root and sets
+   * the data-hf-theme attribute so developers can use both approaches:
+   *
+   *   CSS vars:       color: var(--hf-color-primary)
+   *   Attribute sel:  [data-hf-theme="dark"] { ... }
+   */
+  private applyTokens(tokens: DesignTokens, theme: string): void {
+    this.currentTokens = tokens;
+
+    const root = document.documentElement;
+
+    // Theme attribute — lets devs use [data-hf-theme="dark"] selectors
+    root.setAttribute("data-hf-theme", theme);
+
+    // Color tokens
+    root.style.setProperty("--hf-color-primary",    tokens.color.primary);
+    root.style.setProperty("--hf-color-surface",    tokens.color.surface);
+    root.style.setProperty("--hf-color-background", tokens.color.background);
+    root.style.setProperty("--hf-color-text",       tokens.color.text);
+    root.style.setProperty("--hf-color-muted",      tokens.color.muted);
+    root.style.setProperty("--hf-color-error",      tokens.color.error);
+    root.style.setProperty("--hf-color-success",    tokens.color.success);
+
+    // Typography
+    root.style.setProperty("--hf-font-family",   tokens.typography.fontFamily);
+    root.style.setProperty("--hf-font-scale-base", `${tokens.typography.scaleBase}px`);
+
+    // Border radius
+    root.style.setProperty("--hf-radius-sm", tokens.radius.sm);
+    root.style.setProperty("--hf-radius-md", tokens.radius.md);
+    root.style.setProperty("--hf-radius-lg", tokens.radius.lg);
+
+    // Spacing
+    root.style.setProperty("--hf-spacing-unit", `${tokens.spacing.unit}px`);
+
+    this.log(`Design tokens applied (theme: ${theme})`);
   }
 
   // ─── Internal: token refresh scheduling ──────────────────────────────────
