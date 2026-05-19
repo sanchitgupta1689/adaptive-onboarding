@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wellness Coach</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── Default tokens — overridden by platform on INIT ── */
+    :root {
+      --hf-color-primary:    #1A7F5A;
+      --hf-color-surface:    #FFFFFF;
+      --hf-color-background: #F5F7F5;
+      --hf-color-text:       #1A1A1A;
+      --hf-color-muted:      #6B7280;
+      --hf-color-error:      #DC2626;
+      --hf-color-success:    #16A34A;
+      --hf-font-family:      Inter, sans-serif;
+      --hf-font-scale-base:  16px;
+      --hf-radius-sm:        6px;
+      --hf-radius-md:        12px;
+      --hf-radius-lg:        20px;
+      --hf-spacing-unit:     4px;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: var(--hf-font-family);
+      background:  var(--hf-color-background);
+      color:       var(--hf-color-text);
+      font-size:   var(--hf-font-scale-base);
+      transition:  background .35s, color .35s;
+    }
+
+    .app {
+      max-width: 460px;
+      margin: 0 auto;
+      padding: calc(var(--hf-spacing-unit)*5) calc(var(--hf-spacing-unit)*5);
+      min-height: 100vh;
+    }
+
+    /* ── Loading ── */
+    .loading {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100vh; gap: 14px;
+      color: var(--hf-color-muted);
+    }
+    .loading-icon { font-size: 38px; }
+    .loading h2 { font-size: 15px; font-weight: 600; color: var(--hf-color-text); }
+    .loading p  { font-size: 13px; }
+    .dots span { animation: blink 1.4s infinite; animation-fill-mode:both; }
+    .dots span:nth-child(2) { animation-delay:.2s }
+    .dots span:nth-child(3) { animation-delay:.4s }
+    @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+
+    /* ── App content ── */
+    .app-content { animation: fadeIn .4s ease-out; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── Header ── */
+    .app-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: calc(var(--hf-spacing-unit)*4);
+      border-bottom: 1px solid rgba(0,0,0,.08);
+      margin-bottom: calc(var(--hf-spacing-unit)*6);
+      transition: border-color .35s;
+    }
+    [data-hf-theme=dark] .app-header { border-bottom-color: rgba(255,255,255,.08); }
+    .app-name  { font-size: 14px; font-weight: 700; color: var(--hf-color-primary); }
+    .sdk-badge {
+      font-size: 10px; font-weight: 600;
+      background: var(--hf-color-primary); color: #fff;
+      padding: 2px 8px; border-radius: 20px; letter-spacing: .5px;
+    }
+
+    /* ── Greeting ── */
+    .greeting { margin-bottom: calc(var(--hf-spacing-unit)*5); }
+    .greeting h1 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+    .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .badge {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+      text-transform: capitalize; letter-spacing: .3px;
+    }
+    .badge-persona {
+      background: rgba(26,127,90,.12);
+      color: var(--hf-color-primary);
+      border: 1px solid rgba(26,127,90,.2);
+    }
+    [data-hf-theme=dark] .badge-persona {
+      background: rgba(52,211,153,.12);
+      border-color: rgba(52,211,153,.25);
+    }
+    .badge-maturity {
+      background: var(--hf-color-surface);
+      color: var(--hf-color-muted);
+      border: 1px solid rgba(0,0,0,.1);
+    }
+    [data-hf-theme=dark] .badge-maturity { border-color: rgba(255,255,255,.1); }
+
+    /* ── Section ── */
+    .sec-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: .8px; text-transform: uppercase;
+      color: var(--hf-color-muted); margin-bottom: 10px;
+    }
+    .goals-sec { margin-bottom: calc(var(--hf-spacing-unit)*5); }
+    .goal-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .goal-pill {
+      font-size: 12px; padding: 4px 12px;
+      background: var(--hf-color-surface);
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: var(--hf-radius-sm);
+      transition: background .35s;
+    }
+    [data-hf-theme=dark] .goal-pill { border-color: rgba(255,255,255,.1); }
+
+    /* ── Product card ── */
+    .card {
+      background: var(--hf-color-surface);
+      border-radius: var(--hf-radius-lg);
+      padding: calc(var(--hf-spacing-unit)*5);
+      margin-bottom: calc(var(--hf-spacing-unit)*5);
+      box-shadow: 0 2px 8px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.04);
+      border: 1px solid rgba(0,0,0,.06);
+      transition: background .35s, box-shadow .35s;
+    }
+    [data-hf-theme=dark] .card {
+      box-shadow: 0 2px 12px rgba(0,0,0,.3);
+      border-color: rgba(255,255,255,.06);
+    }
+    .card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    .card-icon {
+      width: 46px; height: 46px;
+      background: linear-gradient(135deg, var(--hf-color-primary) 0%, rgba(26,127,90,.45) 100%);
+      border-radius: var(--hf-radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .card-meta { flex: 1; }
+    .card-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .card-sub  { font-size: 11px; color: var(--hf-color-muted); }
+    .card-price { font-size: 20px; font-weight: 700; color: var(--hf-color-primary); }
+    .card-price small { font-size: 12px; font-weight: 400; color: var(--hf-color-muted); }
+    .card-desc {
+      font-size: 13px; color: var(--hf-color-muted);
+      line-height: 1.55; margin-bottom: 14px;
+    }
+    .benefits { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+    .benefit  { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .dot      { width: 6px; height: 6px; border-radius: 50%; background: var(--hf-color-success); flex-shrink:0; }
+
+    .btn-buy {
+      width: 100%; padding: 14px;
+      background: var(--hf-color-primary); color: #fff;
+      border: none; border-radius: var(--hf-radius-md);
+      font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: var(--hf-font-family);
+      transition: opacity .15s, transform .1s;
+    }
+    .btn-buy:hover:not(:disabled)  { opacity:.9; }
+    .btn-buy:active:not(:disabled) { transform: scale(.99); }
+    .btn-buy:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-buy.done { background: var(--hf-color-success); }
+
+    /* ── Action row ── */
+    .actions { display: flex; gap: 8px; margin-bottom: calc(var(--hf-spacing-unit)*5); }
+    .btn-act {
+      flex: 1; padding: 10px 6px;
+      background: var(--hf-color-surface);
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: var(--hf-radius-md);
+      font-size: 12px; font-weight: 500;
+      color: var(--hf-color-text);
+      cursor: pointer; font-family: var(--hf-font-family);
+      transition: background .15s; text-align: center;
+    }
+    .btn-act:hover { background: rgba(0,0,0,.04); }
+    [data-hf-theme=dark] .btn-act { border-color: rgba(255,255,255,.1); }
+    [data-hf-theme=dark] .btn-act:hover { background: rgba(255,255,255,.05); }
+
+    /* ── Token inspector ── */
+    .inspector {
+      background: var(--hf-color-surface);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--hf-radius-md);
+      overflow: hidden;
+    }
+    [data-hf-theme=dark] .inspector { border-color: rgba(255,255,255,.08); }
+    .inspector-head {
+      padding: 10px 14px; font-size: 10px; font-weight: 700;
+      letter-spacing: .8px; text-transform: uppercase;
+      color: var(--hf-color-muted);
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; user-select: none;
+    }
+    .inspector-head:hover { background: rgba(0,0,0,.03); }
+    [data-hf-theme=dark] .inspector-head:hover { background: rgba(255,255,255,.03); }
+    .inspector-body {
+      display: none; padding: 10px 14px;
+      border-top: 1px solid rgba(0,0,0,.06);
+    }
+    .inspector-body.open { display: block; }
+    [data-hf-theme=dark] .inspector-body { border-top-color: rgba(255,255,255,.06); }
+    .tok-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 3px 0; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    }
+    .tok-name  { color: var(--hf-color-muted); flex: 1; min-width: 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .tok-val   { color: var(--hf-color-text); font-weight: 500; flex-shrink: 0; }
+    .swatch    { width: 12px; height: 12px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); flex-shrink:0; }
+
+    /* ── Payment sheet ── */
+    .pay-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      display: none; align-items: flex-end; z-index: 100;
+    }
+    .pay-overlay.open { display: flex; }
+    .pay-sheet {
+      background: var(--hf-color-surface);
+      border-radius: var(--hf-radius-lg) var(--hf-radius-lg) 0 0;
+      padding: 24px 20px 36px; width: 100%;
+      animation: slideUp .25s ease-out;
+    }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .pay-sheet h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .pay-sheet p  { font-size: 13px; color: var(--hf-color-muted); }
+    .pay-amount   { font-size: 32px; font-weight: 700; color: var(--hf-color-primary); text-align: center; margin: 18px 0; }
+    .pay-status   { text-align: center; color: var(--hf-color-muted); font-size: 13px; padding: 12px 0; }
+    .spinner {
+      width: 26px; height: 26px;
+      border: 3px solid rgba(0,0,0,.1); border-top-color: var(--hf-color-primary);
+      border-radius: 50%; animation: spin .8s linear infinite;
+      margin: 0 auto 10px;
+    }
+    [data-hf-theme=dark] .spinner { border-color: rgba(255,255,255,.1); border-top-color: var(--hf-color-primary); }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; top: 14px; left: 50%;
+      transform: translateX(-50%) translateY(-70px);
+      background: var(--hf-color-text); color: var(--hf-color-background);
+      padding: 9px 18px; border-radius: var(--hf-radius-md);
+      font-size: 13px; font-weight: 500;
+      z-index: 200; transition: transform .3s; white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Loading state -->
+  <div class="loading" id="loading">
+    <div class="loading-icon">🌿</div>
+    <h2>Wellness Coach</h2>
+    <p>Waiting for platform<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+  </div>
+
+  <!-- Main content -->
+  <div class="app-content" id="content" style="display:none">
+
+    <div class="app-header">
+      <span class="app-name">Wellness Coach</span>
+      <span class="sdk-badge">SDK ✓</span>
+    </div>
+
+    <div class="greeting">
+      <h1>Hello, <span id="user-name">there</span>! 👋</h1>
+      <div class="badges">
+        <span class="badge badge-persona"  id="badge-persona">—</span>
+        <span class="badge badge-maturity" id="badge-maturity">—</span>
+      </div>
+    </div>
+
+    <div class="goals-sec">
+      <div class="sec-label">Your Goals</div>
+      <div class="goal-pills" id="goals"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-icon">🌿</div>
+        <div class="card-meta">
+          <div class="card-name">Omega-3 Complete</div>
+          <div class="card-sub">Supplement · Monthly subscription</div>
+        </div>
+        <div class="card-price">₹799<small>/mo</small></div>
+      </div>
+      <div class="card-desc">
+        High-absorption EPA &amp; DHA blend. Clinically shown to support
+        cardiovascular health, reduce inflammation, and improve sleep quality.
+      </div>
+      <div class="benefits">
+        <div class="benefit"><div class="dot"></div>Supports weight management goals</div>
+        <div class="benefit"><div class="dot"></div>Improves sleep quality &amp; recovery</div>
+        <div class="benefit"><div class="dot"></div>7-day free trial, cancel anytime</div>
+      </div>
+      <button class="btn-buy" id="btn-buy" onclick="requestPayment()">
+        Start 7-Day Free Trial
+      </button>
+    </div>
+
+    <div class="actions">
+      <button class="btn-act" onclick="doTrack()">📊 Track View</button>
+      <button class="btn-act" onclick="doNavigate()">🧭 Navigate</button>
+      <button class="btn-act" onclick="doClose()">✖ Close</button>
+    </div>
+
+    <div class="inspector">
+      <div class="inspector-head" onclick="toggleInspector()">
+        <span>Design Tokens — injected by platform</span>
+        <span id="arrow">▸</span>
+      </div>
+      <div class="inspector-body" id="inspector-body">
+        <div id="tok-rows">—</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Payment sheet -->
+<div class="pay-overlay" id="pay-overlay">
+  <div class="pay-sheet">
+    <h3>Omega-3 Complete</h3>
+    <p>7-day free trial, then ₹799/month</p>
+    <div class="pay-amount">₹799</div>
+    <div class="pay-status">
+      <div class="spinner"></div>
+      Waiting for host platform to process payment…
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const NS   = "HEALTHFIRST_EMBED";
+  const HOST = window.location.origin; // production: "https://app.healthfirst.in"
+  let session = null, payPending = false;
+
+  function uid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random()*16|0; return (c==='x'?r:(r&3|8)).toString(16);
+    });
+  }
+
+  function send(type, payload) {
+    window.parent.postMessage(
+      { namespace:NS, version:"1.0", message_id:uid(), type, payload, sent_at:Date.now() },
+      HOST
+    );
+  }
+
+  // ── Token injection (same logic as SDK's applyTokens) ──────────────────────
+  function applyTokens(tokens, theme) {
+    const r = document.documentElement;
+    r.setAttribute('data-hf-theme', theme);
+    r.style.setProperty('--hf-color-primary',    tokens.color.primary);
+    r.style.setProperty('--hf-color-surface',    tokens.color.surface);
+    r.style.setProperty('--hf-color-background', tokens.color.background);
+    r.style.setProperty('--hf-color-text',       tokens.color.text);
+    r.style.setProperty('--hf-color-muted',      tokens.color.muted);
+    r.style.setProperty('--hf-color-error',      tokens.color.error);
+    r.style.setProperty('--hf-color-success',    tokens.color.success);
+    r.style.setProperty('--hf-font-family',      tokens.typography.fontFamily);
+    r.style.setProperty('--hf-font-scale-base',  tokens.typography.scaleBase + 'px');
+    r.style.setProperty('--hf-radius-sm',        tokens.radius.sm);
+    r.style.setProperty('--hf-radius-md',        tokens.radius.md);
+    r.style.setProperty('--hf-radius-lg',        tokens.radius.lg);
+    r.style.setProperty('--hf-spacing-unit',     tokens.spacing.unit + 'px');
+    renderInspector(tokens, theme);
+  }
+
+  function renderInspector(tokens, theme) {
+    const cols = [
+      ['primary', tokens.color.primary], ['surface', tokens.color.surface],
+      ['background', tokens.color.background], ['text', tokens.color.text],
+      ['muted', tokens.color.muted], ['success', tokens.color.success],
+    ];
+    document.getElementById('tok-rows').innerHTML = [
+      row('theme', theme),
+      ...cols.map(([n,v]) => `
+        <div class="tok-row">
+          <span class="tok-name">--hf-color-${n}</span>
+          <span class="swatch" style="background:${v}"></span>
+          <span class="tok-val">${v}</span>
+        </div>`),
+      row('--hf-font-family',   tokens.typography.fontFamily),
+      row('--hf-radius-md',     tokens.radius.md),
+      row('--hf-spacing-unit',  tokens.spacing.unit + 'px'),
+    ].join('');
+  }
+
+  function row(name, val) {
+    return `<div class="tok-row"><span class="tok-name">${name}</span><span class="tok-val">${val}</span></div>`;
+  }
+
+  // ── Message handler ─────────────────────────────────────────────────────────
+  window.addEventListener('message', ev => {
+    if (ev.origin !== HOST) return;
+    if (ev.data?.namespace !== NS) return;
+    const { type, payload } = ev.data;
+
+    if (type === 'INIT')            handleInit(payload);
+    if (type === 'THEME_CHANGE')    handleTheme(payload);
+    if (type === 'PAYMENT_RESULT')  handlePayResult(payload);
+    if (type === 'CLOSE_REQUEST')   handleCloseReq(payload);
+    if (type === 'TOKEN_REFRESH')   session && (session.auth_token = payload.auth_token);
+  });
+
+  function handleInit(p) {
+    session = p;
+    if (p.platform?.tokens) applyTokens(p.platform.tokens, p.platform.theme);
+
+    // Derive display name from user_id (e.g. "user_priya_123" → "Priya")
+    const parts = p.user_context.user_id.split('_');
+    const name  = parts.find(x => isNaN(x) && x !== 'user') || 'there';
+    document.getElementById('user-name').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+
+    document.getElementById('badge-persona').textContent =
+      (p.user_context.persona || 'explorer').replace(/_/g,' ');
+    document.getElementById('badge-maturity').textContent =
+      p.user_context.health_maturity || 'explorer';
+
+    document.getElementById('goals').innerHTML =
+      (p.user_context.goals || [])
+        .map(g => `<span class="goal-pill">${g.replace(/_/g,' ')}</span>`)
+        .join('');
+
+    document.getElementById('loading').style.display  = 'none';
+    document.getElementById('content').style.display  = 'block';
+
+    send('APP_READY', { initial_height: document.documentElement.scrollHeight });
+  }
+
+  function handleTheme(p) {
+    if (p.tokens) applyTokens(p.tokens, p.theme);
+    else document.documentElement.setAttribute('data-hf-theme', p.theme);
+    toast(p.theme === 'dark' ? '🌙 Dark mode applied' : '☀ Light mode applied');
+  }
+
+  function handlePayResult(p) {
+    document.getElementById('pay-overlay').classList.remove('open');
+    payPending = false;
+    const btn = document.getElementById('btn-buy');
+    btn.disabled = false;
+    if (p.success) {
+      btn.textContent = '✓ Trial Started!';
+      btn.classList.add('done');
+      toast(`✓ Payment approved · ${(p.transaction?.transaction_id||'').slice(0,12)}`);
+    } else {
+      toast(`✗ Payment failed: ${p.failure?.code}`);
+    }
+  }
+
+  function handleCloseReq(p) {
+    toast(`Platform: close requested (${p.reason})`);
+    setTimeout(() => send('CLOSE', { reason:'dismissed' }), 1500);
+  }
+
+  // ── User actions ────────────────────────────────────────────────────────────
+  function requestPayment() {
+    if (payPending) return;
+    payPending = true;
+    document.getElementById('btn-buy').disabled = true;
+    document.getElementById('pay-overlay').classList.add('open');
+    send('REQUEST_PAYMENT', {
+      plan_id:'omega3-monthly', amount:799, currency:'INR',
+      billing_cycle:'monthly', description:'Omega-3 Complete Monthly Subscription',
+      trial:{ duration_days:7 }
+    });
+  }
+
+  function doTrack() {
+    send('TRACK_EVENT', { event_name:'product_viewed', properties:{ product_id:'omega3-complete', price:799 } });
+    toast('📊 Event sent: product_viewed');
+  }
+
+  function doNavigate() {
+    send('NAVIGATE', { destination:'health_goals' });
+    toast('🧭 Navigate → health_goals');
+  }
+
+  function doClose() {
+    send('CLOSE', { reason:'dismissed' });
+    toast('Sending CLOSE to platform…');
+  }
+
+  function toggleInspector() {
+    const body  = document.getElementById('inspector-body');
+    const arrow = document.getElementById('arrow');
+    body.classList.toggle('open');
+    arrow.textContent = body.classList.contains('open') ? '▾' : '▸';
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>

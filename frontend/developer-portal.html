@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthFirst Developers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="/ui/hf-components.js"></script>
+  <style>
+    :root {
+      --hf-color-primary:    #1A7F5A;
+      --hf-color-surface:    #FFFFFF;
+      --hf-color-background: #F5F7F5;
+      --hf-color-text:       #1A1A1A;
+      --hf-color-muted:      #6B7280;
+      --hf-color-error:      #DC2626;
+      --hf-color-success:    #16A34A;
+      --hf-font-family:      Inter, sans-serif;
+      --hf-radius-sm:        6px;
+      --hf-radius-md:        12px;
+      --hf-radius-lg:        20px;
+      --hf-spacing-unit:     4px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Inter, sans-serif;
+      background: #F0F2F0;
+      color: #1A1A1A;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      background: #0F172A;
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar-logo {
+      padding: 20px 16px 16px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid #1E293B;
+    }
+    .logo-mark {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #1A7F5A, #34D399);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0;
+    }
+    .logo-text  { font-size: 13px; font-weight: 700; color: #F1F5F9; line-height: 1.2; }
+    .logo-sub   { font-size: 10px; color: #475569; font-weight: 400; }
+
+    .nav { padding: 12px 8px; flex: 1; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: #94A3B8;
+      cursor: pointer; transition: all .15s;
+      text-decoration: none; margin-bottom: 2px;
+    }
+    .nav-item:hover  { background: #1E293B; color: #E2E8F0; }
+    .nav-item.active { background: #1E293B; color: #F1F5F9; }
+    .nav-item .icon  { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+
+    .nav-section {
+      font-size: 9px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #334155;
+      padding: 12px 10px 6px;
+    }
+
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid #1E293B;
+      font-size: 11px; color: #334155;
+    }
+    .sidebar-footer a { color: #475569; text-decoration: none; }
+    .sidebar-footer a:hover { color: #94A3B8; }
+
+    /* ── Main ── */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #E5E7EB;
+      padding: 14px 32px;
+      display: flex; align-items: center; gap: 12px;
+      flex-shrink: 0;
+    }
+    .topbar h1 { font-size: 18px; font-weight: 700; flex: 1; }
+    .topbar p  { font-size: 13px; color: #6B7280; margin-top: 1px; }
+
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* ── Views (shown/hidden) ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── App grid ── */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .app-card {
+      background: #fff;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      transition: box-shadow .15s, border-color .15s;
+      position: relative;
+    }
+    .app-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); border-color: #D1FAE5; }
+
+    .app-card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .app-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .app-card-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .app-card-email { font-size: 11px; color: #6B7280; }
+    .app-card-desc {
+      font-size: 13px; color: #6B7280; line-height: 1.5;
+      margin-bottom: 14px;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .app-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 12px; border-top: 1px solid #F3F4F6;
+    }
+    .app-id-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: #6B7280;
+      background: #F9FAFB; padding: 3px 8px; border-radius: 6px;
+    }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center; padding: 80px 32px;
+      color: #9CA3AF;
+    }
+    .empty .empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty h3 { font-size: 17px; font-weight: 600; color: #4B5563; margin-bottom: 8px; }
+    .empty p  { font-size: 14px; margin-bottom: 24px; }
+
+    /* ── Register form ── */
+    .form-wrap { max-width: 560px; }
+    .form-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .form-sub   { font-size: 14px; color: #6B7280; margin-bottom: 28px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid .span-2 { grid-column: 1 / 3; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+    .field label {
+      font-size: 12px; font-weight: 600; color: #374151; letter-spacing: .3px;
+    }
+    .field input, .field select, .field textarea {
+      font-family: Inter, sans-serif;
+      font-size: 14px; color: #1A1A1A;
+      background: #fff; border: 1.5px solid #D1D5DB;
+      border-radius: 8px; padding: 9px 12px;
+      outline: none; transition: border-color .15s; width: 100%;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: #1A7F5A;
+    }
+    .field textarea { resize: vertical; min-height: 80px; }
+    .field select { cursor: pointer; }
+    .field .hint { font-size: 11px; color: #9CA3AF; }
+
+    .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+    .btn-submit {
+      padding: 11px 28px; background: #1A7F5A; color: #fff;
+      border: none; border-radius: 10px; font-size: 14px;
+      font-weight: 600; cursor: pointer; font-family: Inter, sans-serif;
+      transition: opacity .15s;
+    }
+    .btn-submit:hover    { opacity: .88; }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-cancel {
+      padding: 11px 20px; background: transparent; color: #6B7280;
+      border: 1.5px solid #D1D5DB; border-radius: 10px; font-size: 14px;
+      font-weight: 500; cursor: pointer; font-family: Inter, sans-serif;
+      transition: border-color .15s;
+    }
+    .btn-cancel:hover { border-color: #9CA3AF; color: #374151; }
+
+    /* ── App detail view ── */
+    .detail-header {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+    }
+    .detail-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; flex-shrink: 0;
+    }
+    .detail-name { font-size: 22px; font-weight: 700; }
+    .detail-meta { font-size: 13px; color: #6B7280; margin-top: 2px; }
+
+    .cred-section {
+      background: #fff; border: 1px solid #E5E7EB;
+      border-radius: 16px; padding: 24px; margin-bottom: 20px;
+    }
+    .cred-title { font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 16px; }
+
+    .cred-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; background: #F9FAFB; border-radius: 10px; margin-bottom: 10px;
+    }
+    .cred-label  { font-size: 11px; font-weight: 600; color: #6B7280; width: 90px; flex-shrink: 0; }
+    .cred-value  {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: #1A1A1A; flex: 1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .cred-value.secret { letter-spacing: 3px; color: #9CA3AF; }
+    .btn-icon {
+      background: none; border: none; cursor: pointer;
+      font-size: 16px; padding: 4px; border-radius: 6px;
+      transition: background .1s; flex-shrink: 0;
+    }
+    .btn-icon:hover { background: #E5E7EB; }
+
+    .snippet-section {
+      background: #fff; border: 1px solid #E5E7EB;
+      border-radius: 16px; padding: 24px; margin-bottom: 20px;
+    }
+    .snippet-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .snippet-title { font-size: 13px; font-weight: 700; color: #374151; }
+    .btn-copy-code {
+      font-size: 12px; padding: 4px 12px;
+      background: #F0FDF4; color: #1A7F5A;
+      border: 1px solid #BBF7D0; border-radius: 6px;
+      cursor: pointer; font-family: Inter, sans-serif;
+      transition: background .15s;
+    }
+    .btn-copy-code:hover { background: #DCFCE7; }
+    .snippet-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+    .tab-btn {
+      font-size: 12px; padding: 5px 12px; border-radius: 6px;
+      border: 1px solid #E5E7EB; background: #fff; color: #6B7280;
+      cursor: pointer; font-family: Inter, sans-serif; transition: all .1s;
+    }
+    .tab-btn.active { background: #1A7F5A; color: #fff; border-color: #1A7F5A; }
+
+    .code-block {
+      background: #0F172A; border-radius: 10px;
+      padding: 18px; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+      line-height: 1.75; color: #E2E8F0;
+    }
+    .kw  { color: #93C5FD; }
+    .str { color: #86EFAC; }
+    .cm  { color: #475569; }
+    .fn  { color: #FDE68A; }
+    .val { color: #F9A8D4; }
+
+    .danger-zone {
+      background: #FEF2F2; border: 1px solid #FECACA;
+      border-radius: 16px; padding: 20px;
+    }
+    .danger-zone h4 { font-size: 13px; font-weight: 700; color: #991B1B; margin-bottom: 6px; }
+    .danger-zone p  { font-size: 13px; color: #B91C1C; margin-bottom: 14px; }
+    .btn-delete {
+      padding: 9px 20px; background: #DC2626; color: #fff;
+      border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: Inter, sans-serif; transition: opacity .15s;
+    }
+    .btn-delete:hover { opacity: .88; }
+
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #6B7280; cursor: pointer;
+      background: none; border: none; font-family: Inter, sans-serif;
+      padding: 0; margin-bottom: 20px; transition: color .15s;
+    }
+    .btn-back:hover { color: #1A7F5A; }
+
+    /* ── Components showcase ── */
+    .showcase-grid { display: grid; gap: 24px; max-width: 680px; }
+    .showcase-row  { background: #fff; border: 1px solid #E5E7EB; border-radius: 16px; padding: 20px; }
+    .showcase-label { font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #9CA3AF; margin-bottom: 14px; }
+    .showcase-items { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1A1A1A; color: #fff;
+      padding: 10px 20px; border-radius: 10px;
+      font-size: 13px; font-weight: 500;
+      z-index: 500; transition: transform .3s; white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Loading spinner overlay ── */
+    #loading-overlay {
+      position: fixed; inset: 0; background: rgba(255,255,255,.7);
+      display: none; align-items: center; justify-content: center;
+      z-index: 400;
+    }
+    #loading-overlay.show { display: flex; }
+
+    /* Category colours */
+    .cat-supplement   { background: #D1FAE5; }
+    .cat-fitness      { background: #DBEAFE; }
+    .cat-mental-health{ background: #EDE9FE; }
+    .cat-nutrition    { background: #FEF3C7; }
+    .cat-diagnostics  { background: #CCFBF1; }
+    .cat-other        { background: #F3F4F6; }
+
+    /* ── Success screen ── */
+    .success-wrap {
+      max-width: 520px; text-align: center; padding: 40px 0;
+    }
+    .success-icon { font-size: 52px; margin-bottom: 16px; }
+    .success-wrap h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .success-wrap p  { font-size: 14px; color: #6B7280; margin-bottom: 28px; }
+    .key-box {
+      background: #0F172A; border-radius: 12px;
+      padding: 16px 20px; text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 24px;
+    }
+    .key-box .key-label { font-size: 10px; color: #475569; margin-bottom: 4px; }
+    .key-box .key-val   { font-size: 13px; color: #86EFAC; word-break: break-all; }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">🏥</div>
+      <div>
+        <div class="logo-text">HealthFirst</div>
+        <div class="logo-sub">Developers</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-section">Platform</div>
+      <div class="nav-item active" id="nav-apps" onclick="showView('list')">
+        <span class="icon">📦</span> My Apps
+      </div>
+      <div class="nav-item" id="nav-register" onclick="showView('register')">
+        <span class="icon">＋</span> Register App
+      </div>
+
+      <div class="nav-section">Resources</div>
+      <a class="nav-item" href="/frontend/platform-shell.html" target="_blank">
+        <span class="icon">🎮</span> Simulator
+      </a>
+      <div class="nav-item" id="nav-components" onclick="showView('components')">
+        <span class="icon">🧩</span> UI Components
+      </div>
+      <a class="nav-item" href="/docs" target="_blank">
+        <span class="icon">📄</span> API Docs
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      Protocol v1.0 · Sandbox<br>
+      <a href="#">Status</a> · <a href="#">Support</a>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- ── App list view ── -->
+    <div class="view active" id="view-list">
+      <div class="topbar">
+        <div>
+          <h1>My Apps</h1>
+          <p>Apps registered to embed in the HealthFirst platform</p>
+        </div>
+        <hf-button variant="primary" onclick="showView('register')">+ Register App</hf-button>
+      </div>
+      <div class="content">
+        <div id="app-grid-wrap"></div>
+      </div>
+    </div>
+
+    <!-- ── Register view ── -->
+    <div class="view" id="view-register">
+      <div class="topbar">
+        <div>
+          <h1>Register New App</h1>
+          <p>Get your app_id and secret_key to start building</p>
+        </div>
+      </div>
+      <div class="content">
+        <div class="form-wrap">
+          <div class="form-grid">
+            <div class="field">
+              <label>App Name *</label>
+              <input id="f-name" type="text" placeholder="Wellness Coach">
+            </div>
+            <div class="field">
+              <label>Category *</label>
+              <select id="f-category">
+                <option value="">Select category…</option>
+                <option value="supplement">Supplement</option>
+                <option value="fitness">Fitness</option>
+                <option value="mental-health">Mental Health</option>
+                <option value="nutrition">Nutrition</option>
+                <option value="diagnostics">Diagnostics</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field span-2">
+              <label>Description *</label>
+              <textarea id="f-desc" placeholder="What does your app do for users?"></textarea>
+            </div>
+            <div class="field">
+              <label>Developer Email *</label>
+              <input id="f-email" type="email" placeholder="you@yourcompany.com">
+            </div>
+            <div class="field">
+              <label>Website</label>
+              <input id="f-website" type="url" placeholder="https://yourapp.com">
+              <span class="hint">Optional</span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-submit" id="btn-submit" onclick="submitForm()">Register App</button>
+            <button class="btn-cancel" onclick="showView('list')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Success view (shown once after registration) ── -->
+    <div class="view" id="view-success">
+      <div class="topbar"><div><h1>App Registered</h1></div></div>
+      <div class="content">
+        <div class="success-wrap">
+          <div class="success-icon">🎉</div>
+          <h2>Your app is live!</h2>
+          <p>Copy your credentials below. The <strong>secret key is only shown once</strong> — store it securely.</p>
+          <div class="key-box">
+            <div class="key-label">APP ID</div>
+            <div class="key-val" id="s-app-id">—</div>
+          </div>
+          <div class="key-box">
+            <div class="key-label">SECRET KEY (store this now)</div>
+            <div class="key-val" id="s-secret-key">—</div>
+          </div>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <hf-button variant="primary"  onclick="viewApp(lastCreatedId)">View App Details</hf-button>
+            <hf-button variant="secondary" onclick="showView('list')">Back to My Apps</hf-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── App detail view ── -->
+    <div class="view" id="view-detail">
+      <div class="topbar">
+        <div><h1 id="d-title">App Details</h1><p id="d-meta">—</p></div>
+      </div>
+      <div class="content" id="detail-content"></div>
+    </div>
+
+    <!-- ── Components showcase view ── -->
+    <div class="view" id="view-components">
+      <div class="topbar">
+        <div>
+          <h1>UI Components</h1>
+          <p>@healthfirst/ui — drop-in Web Components that auto-consume platform design tokens</p>
+        </div>
+      </div>
+      <div class="content">
+        <div class="showcase-grid">
+
+          <div class="showcase-row">
+            <div class="showcase-label">hf-button — variants</div>
+            <div class="showcase-items">
+              <hf-button variant="primary">Primary</hf-button>
+              <hf-button variant="secondary">Secondary</hf-button>
+              <hf-button variant="ghost">Ghost</hf-button>
+              <hf-button variant="danger">Danger</hf-button>
+              <hf-button variant="primary" loading>Loading</hf-button>
+              <hf-button variant="primary" disabled>Disabled</hf-button>
+            </div>
+          </div>
+
+          <div class="showcase-row">
+            <div class="showcase-label">hf-button — sizes</div>
+            <div class="showcase-items" style="align-items:flex-end">
+              <hf-button variant="primary" size="sm">Small</hf-button>
+              <hf-button variant="primary" size="md">Medium</hf-button>
+              <hf-button variant="primary" size="lg">Large</hf-button>
+            </div>
+          </div>
+
+          <div class="showcase-row">
+            <div class="showcase-label">hf-badge — colors</div>
+            <div class="showcase-items">
+              <hf-badge color="primary">Primary</hf-badge>
+              <hf-badge color="success">Success</hf-badge>
+              <hf-badge color="error">Error</hf-badge>
+              <hf-badge color="warning">Warning</hf-badge>
+              <hf-badge color="muted">Muted</hf-badge>
+            </div>
+          </div>
+
+          <div class="showcase-row">
+            <div class="showcase-label">hf-card — elevation levels</div>
+            <div class="showcase-items" style="align-items:stretch">
+              <hf-card elevation="0" padding="sm" style="flex:1"><div style="font-size:13px;color:#6B7280">Flat (0)</div></hf-card>
+              <hf-card elevation="1" padding="sm" style="flex:1"><div style="font-size:13px;color:#6B7280">Default (1)</div></hf-card>
+              <hf-card elevation="2" padding="sm" style="flex:1"><div style="font-size:13px;color:#6B7280">Elevated (2)</div></hf-card>
+            </div>
+          </div>
+
+          <div class="showcase-row">
+            <div class="showcase-label">hf-input — states</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <hf-input label="Email" type="email" placeholder="you@example.com"></hf-input>
+              <hf-input label="Password" type="password" placeholder="••••••••" error="Too short"></hf-input>
+              <hf-input label="Disabled" placeholder="Can't edit this" disabled></hf-input>
+              <hf-input label="Required" placeholder="Fill this in" required></hf-input>
+            </div>
+          </div>
+
+          <div class="showcase-row">
+            <div class="showcase-label">hf-spinner, hf-avatar, hf-divider</div>
+            <div class="showcase-items" style="align-items:center;gap:20px">
+              <hf-spinner size="sm"></hf-spinner>
+              <hf-spinner size="md"></hf-spinner>
+              <hf-spinner size="lg"></hf-spinner>
+              <div style="width:1px;height:36px;background:#E5E7EB"></div>
+              <hf-avatar initials="PK" size="sm"></hf-avatar>
+              <hf-avatar initials="HF" size="md"></hf-avatar>
+              <hf-avatar initials="AB" size="lg"></hf-avatar>
+            </div>
+            <div style="margin-top:16px">
+              <hf-divider></hf-divider>
+              <div style="margin:12px 0"></div>
+              <hf-divider label="or continue with"></hf-divider>
+            </div>
+          </div>
+
+          <div class="showcase-row">
+            <div class="showcase-label">Real app example — product card</div>
+            <hf-card elevation="1" padding="md">
+              <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px">
+                <hf-avatar initials="🌿" size="md"></hf-avatar>
+                <div style="flex:1">
+                  <div style="font-size:15px;font-weight:700">Omega-3 Complete</div>
+                  <div style="font-size:12px;color:#6B7280">Supplement</div>
+                </div>
+                <hf-badge color="success">Recommended</hf-badge>
+              </div>
+              <p style="font-size:13px;color:#6B7280;margin-bottom:14px">High-absorption EPA & DHA blend for cardiovascular health and better sleep.</p>
+              <hf-button variant="primary" full-width>Start Free Trial — ₹799/mo</hf-button>
+            </hf-card>
+          </div>
+
+          <div class="showcase-row">
+            <div class="showcase-label">Usage</div>
+            <div class="code-block">&lt;<span class="kw">script</span> <span class="val">src</span>=<span class="str">"/ui/hf-components.js"</span>&gt;&lt;/<span class="kw">script</span>&gt;
+
+<span class="cm">&lt;!-- These work in any framework or plain HTML --&gt;</span>
+&lt;<span class="fn">hf-button</span> <span class="val">variant</span>=<span class="str">"primary"</span>&gt;Buy Now&lt;/<span class="fn">hf-button</span>&gt;
+&lt;<span class="fn">hf-badge</span>  <span class="val">color</span>=<span class="str">"success"</span>&gt;Recommended&lt;/<span class="fn">hf-badge</span>&gt;
+&lt;<span class="fn">hf-input</span>  <span class="val">label</span>=<span class="str">"Email"</span> <span class="val">type</span>=<span class="str">"email"</span>&gt;&lt;/<span class="fn">hf-input</span>&gt;
+&lt;<span class="fn">hf-card</span>   <span class="val">elevation</span>=<span class="str">"1"</span>&gt;…&lt;/<span class="fn">hf-card</span>&gt;
+
+<span class="cm">&lt;!-- All --hf-* CSS vars apply automatically --&gt;
+&lt;!-- Tokens update live on THEME_CHANGE with no extra code --&gt;</span></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+<div id="loading-overlay" class=""><hf-spinner size="lg"></hf-spinner></div>
+
+<script>
+  let currentView = 'list';
+  let lastCreatedId = null;
+
+  // ── Navigation ──────────────────────────────────────────────────────────────
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navMap = { list:'nav-apps', register:'nav-register', components:'nav-components' };
+    if (navMap[name]) document.getElementById(navMap[name])?.classList.add('active');
+    currentView = name;
+    if (name === 'list') loadApps();
+  }
+
+  // ── App list ────────────────────────────────────────────────────────────────
+  async function loadApps() {
+    const wrap = document.getElementById('app-grid-wrap');
+    wrap.innerHTML = '<div style="color:#9CA3AF;font-size:13px;padding:20px 0">Loading…</div>';
+    try {
+      const res = await fetch('/portal/apps');
+      const apps = await res.json();
+      renderAppGrid(apps);
+    } catch(e) {
+      wrap.innerHTML = '<div style="color:#DC2626;font-size:13px">Failed to load apps.</div>';
+    }
+  }
+
+  function renderAppGrid(apps) {
+    const wrap = document.getElementById('app-grid-wrap');
+    if (!apps.length) {
+      wrap.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">📦</div>
+          <h3>No apps yet</h3>
+          <p>Register your first app to get an app_id and secret_key.</p>
+          <hf-button variant="primary" onclick="showView('register')">+ Register Your First App</hf-button>
+        </div>`;
+      return;
+    }
+    wrap.innerHTML = `<div class="app-grid">${apps.map(appCard).join('')}</div>`;
+  }
+
+  const ICONS = { supplement:'🌿', fitness:'🏃', 'mental-health':'🧠', nutrition:'🥗', diagnostics:'🔬', other:'📦' };
+  const CAT_LABELS = { supplement:'Supplement', fitness:'Fitness', 'mental-health':'Mental Health', nutrition:'Nutrition', diagnostics:'Diagnostics', other:'Other' };
+
+  function appCard(app) {
+    const icon = ICONS[app.category] || '📦';
+    const catClass = 'cat-' + app.category;
+    const date = new Date(app.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+    return `
+      <div class="app-card" onclick="viewApp('${app.app_id}')">
+        <div class="app-card-top">
+          <div class="app-icon ${catClass}">${icon}</div>
+          <div style="flex:1">
+            <div class="app-card-name">${esc(app.name)}</div>
+            <div class="app-card-email">${esc(app.developer_email)}</div>
+          </div>
+          <hf-badge color="success">${CAT_LABELS[app.category]||app.category}</hf-badge>
+        </div>
+        <div class="app-card-desc">${esc(app.description)}</div>
+        <div class="app-card-footer">
+          <span class="app-id-pill">${app.app_id}</span>
+          <span style="font-size:11px;color:#9CA3AF">${date}</span>
+        </div>
+      </div>`;
+  }
+
+  // ── Register form ───────────────────────────────────────────────────────────
+  async function submitForm() {
+    const name     = document.getElementById('f-name').value.trim();
+    const category = document.getElementById('f-category').value;
+    const desc     = document.getElementById('f-desc').value.trim();
+    const email    = document.getElementById('f-email').value.trim();
+    const website  = document.getElementById('f-website').value.trim();
+
+    if (!name || !category || !desc || !email) {
+      toast('Please fill in all required fields'); return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast('Enter a valid email address'); return;
+    }
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.textContent = 'Registering…';
+    showLoading(true);
+
+    try {
+      const res  = await fetch('/portal/apps', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, category, description: desc, developer_email: email, website: website || null })
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Registration failed'); }
+      const app = await res.json();
+
+      lastCreatedId = app.app_id;
+      document.getElementById('s-app-id').textContent     = app.app_id;
+      document.getElementById('s-secret-key').textContent = app.secret_key;
+
+      // Reset form
+      ['f-name','f-desc','f-email','f-website'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-category').value = '';
+
+      showView('success');
+    } catch(e) {
+      toast('Error: ' + e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Register App';
+      showLoading(false);
+    }
+  }
+
+  // ── App detail ──────────────────────────────────────────────────────────────
+  async function viewApp(appId) {
+    showLoading(true);
+    try {
+      const res = await fetch(`/portal/apps/${appId}`);
+      if (!res.ok) throw new Error('Not found');
+      const app = await res.json();
+      renderDetail(app);
+      document.getElementById('d-title').textContent = app.name;
+      document.getElementById('d-meta').textContent  = `${CAT_LABELS[app.category]||app.category} · ${app.developer_email}`;
+      showView('detail');
+    } catch(e) {
+      toast('Failed to load app details');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function renderDetail(app) {
+    const icon = ICONS[app.category] || '📦';
+    const catClass = 'cat-' + app.category;
+
+    document.getElementById('detail-content').innerHTML = `
+      <button class="btn-back" onclick="showView('list')">← Back to My Apps</button>
+
+      <div class="cred-section">
+        <div class="cred-title">Credentials</div>
+        <div class="cred-row">
+          <span class="cred-label">APP ID</span>
+          <span class="cred-value" id="val-app-id">${app.app_id}</span>
+          <button class="btn-icon" onclick="copy('${app.app_id}','App ID copied')" title="Copy">📋</button>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">SECRET KEY</span>
+          <span class="cred-value secret" id="val-secret">•••••••••••••••••••••••••</span>
+          <button class="btn-icon" id="btn-reveal" onclick="toggleSecret('${app.secret_key}')" title="Reveal">👁</button>
+          <button class="btn-icon" onclick="copy('${app.secret_key}','Secret key copied')" title="Copy">📋</button>
+        </div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:8px">
+          ⚠️ Never expose the secret key in client-side code. Use it only in your backend to verify message signatures.
+        </div>
+      </div>
+
+      <div class="snippet-section">
+        <div class="snippet-header">
+          <div class="snippet-title">Embed Code</div>
+          <button class="btn-copy-code" onclick="copySnippet()">Copy</button>
+        </div>
+        <div class="snippet-tabs">
+          <button class="tab-btn active" onclick="switchTab(this,'tab-sdk')">SDK Setup</button>
+          <button class="tab-btn"        onclick="switchTab(this,'tab-iframe')">iFrame Tag</button>
+        </div>
+        <div id="tab-sdk" class="code-block"
+><span class="cm">// 1. Add to your app's &lt;head&gt;</span>
+&lt;<span class="kw">script</span> <span class="val">src</span>=<span class="str">"https://cdn.healthfirst.in/embed-sdk/v1/sdk.js"</span>&gt;&lt;/<span class="kw">script</span>&gt;
+&lt;<span class="kw">script</span> <span class="val">src</span>=<span class="str">"/ui/hf-components.js"</span>&gt;&lt;/<span class="kw">script</span>&gt;
+
+<span class="cm">// 2. Initialise the SDK</span>
+<span class="kw">const</span> sdk = <span class="kw">new</span> <span class="fn">HealthFirstSDK</span>({
+  hostOrigin: <span class="str">"https://app.healthfirst.in"</span>,
+  secretKey:  <span class="str">"${app.secret_key.slice(0,12)}…"</span>  <span class="cm">// from your backend env</span>
+});
+
+<span class="cm">// 3. Handle INIT — app entry point</span>
+sdk.<span class="fn">onInit</span>((ctx) => {
+  <span class="kw">const</span> { user, platform } = ctx;
+  <span class="cm">// design tokens auto-applied as CSS vars</span>
+  <span class="cm">// user.goals, user.persona, user.health_maturity available</span>
+
+  sdk.<span class="fn">ready</span>(document.body.scrollHeight);
+});</div>
+        <div id="tab-iframe" class="code-block" style="display:none"
+>&lt;<span class="kw">iframe</span>
+  <span class="val">src</span>=<span class="str">"https://your-app.com"</span>
+  <span class="val">data-hf-app-id</span>=<span class="str">"${app.app_id}"</span>
+  <span class="val">sandbox</span>=<span class="str">"allow-scripts allow-same-origin allow-forms allow-popups"</span>
+  <span class="val">allow</span>=<span class="str">"payment"</span>
+  <span class="val">width</span>=<span class="str">"100%"</span>
+  <span class="val">height</span>=<span class="str">"600"</span>
+  <span class="val">frameborder</span>=<span class="str">"0"</span>
+&gt;&lt;/<span class="kw">iframe</span>&gt;</div>
+      </div>
+
+      <div class="danger-zone">
+        <h4>Danger Zone</h4>
+        <p>Deleting this app permanently revokes its credentials. This cannot be undone.</p>
+        <button class="btn-delete" onclick="deleteApp('${app.app_id}','${esc(app.name)}')">Delete App</button>
+      </div>`;
+  }
+
+  let secretRevealed = false;
+  function toggleSecret(key) {
+    secretRevealed = !secretRevealed;
+    document.getElementById('val-secret').textContent = secretRevealed ? key : '•••••••••••••••••••••••••';
+    document.getElementById('val-secret').classList.toggle('secret', !secretRevealed);
+    document.getElementById('btn-reveal').textContent = secretRevealed ? '🙈' : '👁';
+  }
+
+  function switchTab(btn, tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-sdk').style.display    = tabId === 'tab-sdk'    ? 'block' : 'none';
+    document.getElementById('tab-iframe').style.display = tabId === 'tab-iframe' ? 'block' : 'none';
+  }
+
+  function copySnippet() {
+    const active = document.getElementById('tab-sdk').style.display !== 'none'
+      ? document.getElementById('tab-sdk')
+      : document.getElementById('tab-iframe');
+    copy(active.innerText, 'Code copied to clipboard');
+  }
+
+  async function deleteApp(appId, name) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    showLoading(true);
+    try {
+      await fetch(`/portal/apps/${appId}`, { method: 'DELETE' });
+      showView('list');
+      toast('App deleted');
+    } catch(e) {
+      toast('Delete failed');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  // ── Utilities ───────────────────────────────────────────────────────────────
+  function copy(text, msg) {
+    navigator.clipboard.writeText(text).then(() => toast(msg || 'Copied!'));
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  function showLoading(on) {
+    document.getElementById('loading-overlay').classList.toggle('show', on);
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Boot ────────────────────────────────────────────────────────────────────
+  loadApps();
+</script>
+</body>
+</html>

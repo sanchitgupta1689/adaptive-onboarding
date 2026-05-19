@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from api.routes import router
+from api.developer_portal import router as portal_router
 from config.settings import get_settings
 
 settings = get_settings()
@@ -26,8 +27,9 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(portal_router)
 
-# Serve the frontend HTML at the root URL
+app.mount("/ui",       StaticFiles(directory="ui"),       name="ui")
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 
